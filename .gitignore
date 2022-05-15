@@ -1,0 +1,7 @@
+venv
+static/images/*
+content.db
+__pycache__
+.idea
+.env
+
