@@ -73,6 +73,10 @@ class Bot:
         file_path = json.loads(requests.get(f"https://api.telegram.org/bot{TOKEN}/getFile?file_id={file_id}").text)["result"]["file_path"]
         file = requests.get(f"https://api.telegram.org/file/bot{TOKEN}/{file_path}").content
         file_name = str(uuid.uuid4()) + ".jpg"
+        try:
+            os.mkdir("./static/images")
+        except:
+            pass
         with open(f"./static/images/{file_name}", "wb") as img:
             img.write(file)
             img.close()
