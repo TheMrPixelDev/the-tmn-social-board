@@ -2,10 +2,12 @@ import requests
 import json
 import sqlite3
 import uuid
+import os
+from dotenv import load_dotenv
 import threading
 
-#GET TOKEN FROM ENVIRONMENT
-TOKEN = ""
+load_dotenv()
+TOKEN = os.getenv("TG_TOKEN")
 
 class Bot:
 
@@ -36,9 +38,8 @@ class Bot:
     def getUpdates(self):
         text = requests.get(f"https://api.telegram.org/bot{TOKEN}/getUpdates").text
         saved_messages = set(map((lambda a: a[0]), self.selectData("SELECT update_id FROM polaroids")))
-
         result = json.loads(text)["result"]
-        print(result)
+
         for update in result:
             update_id = update["update_id"]
             msg_id = update["message"]["message_id"]

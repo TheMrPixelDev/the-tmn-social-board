@@ -19,9 +19,9 @@ body {
   border-radius: 3px;
   padding: 2rem;
   text-align: center;
-  width: 21rem;
+  width: 18rem;
   background: white;
-  margin: 2rem;
+  margin: 0.5rem;
   box-shadow: 9px 10px 5px -2px rgba(0,0,0,0.75);
   -webkit-box-shadow: 9px 10px 5px -2px rgba(0,0,0,0.75);
   -moz-box-shadow: 9px 10px 5px -2px rgba(0,0,0,0.75);
@@ -32,10 +32,10 @@ body {
   font-size: x-large;
 }
 
-.angle-1 {
+/*.angle-1 {
   transform: rotate(-10deg);
 }
 
 .angle-2 {
   transform: rotate(10deg);
-}
+}*/

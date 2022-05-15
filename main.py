@@ -17,9 +17,10 @@ async def root(request: Request):
 async def pics():
     bot.getUpdates()
     data = []
-    for row in bot.selectData(f"SELECT file_name, message FROM polaroids"):
+    for row in bot.selectData(f"SELECT file_name, message, sender_name FROM polaroids"):
         data.append({
             "url": "/static/images/" + row[0],
-            "subtitle": row[1]
+            "subtitle": row[1],
+            "sender": row[2]
         })
     return data
