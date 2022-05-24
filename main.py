@@ -1,26 +1,26 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Body
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from bot import Bot
+from Bot import Bot
+import DatabaseFunctions
 
 app = FastAPI()
-bot = Bot()
-
-templates = Jinja2Templates(directory="templates/")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.get("/")
-async def root(request: Request):
-    return templates.TemplateResponse("index.html", context={"request": request})
+origins = ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+bot = Bot()
+bot.fetch_updates()
 
 @app.get("/pics")
 async def pics():
-    bot.getUpdates()
-    data = []
-    for row in bot.selectData(f"SELECT file_name, message, sender_name FROM polaroids"):
-        data.append({
-            "url": "/static/images/" + row[0],
-            "subtitle": row[1],
-            "sender": row[2]
-        })
-    return data
+    bot.fetch_updates()
+    pics = bot.get_all_posts()
+    return pics

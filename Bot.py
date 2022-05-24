@@ -1,10 +1,10 @@
 import requests
+import DatabaseFunctions
 import json
-import sqlite3
 import uuid
 import os
-from dotenv import load_dotenv
 import threading
+from dotenv import load_dotenv
 
 load_dotenv()
 TOKEN = os.getenv("TG_TOKEN")
@@ -12,32 +12,12 @@ TOKEN = os.getenv("TG_TOKEN")
 class Bot:
 
     def __init__(self):
-        con = sqlite3.connect("./content.db")
-        cursor = con.cursor()
-        cursor.execute(
-            "CREATE TABLE IF NOT EXISTS polaroids (update_id INTEGER PRIMARY KEY, msg_id INTEGER, file_name TEXT, "
-            "message TEXT, sender_name TEXT, sender_id INTEGER)")
-        con.commit()
-        con.close()
+        DatabaseFunctions.try_to_create_database()
 
-    def insertData(self, query, data):
-        conn = sqlite3.connect("./content.db")
-        cursor = conn.cursor()
-        cursor.execute(query, data)
-        conn.commit()
-        conn.close()
-
-    def selectData(self, query):
-        conn = sqlite3.connect("./content.db")
-        curser = conn.cursor()
-        data = list(curser.execute(query))
-        conn.commit()
-        conn.close()
-        return data
-        
-    def getUpdates(self):
+    async def fetch_updates(self):
+        print("FETCHING UPDATES NOW")
         text = requests.get(f"https://api.telegram.org/bot{TOKEN}/getUpdates").text
-        saved_messages = set(map((lambda a: a[0]), self.selectData("SELECT update_id FROM polaroids")))
+        saved_messages = set(map((lambda a: a[0]), DatabaseFunctions.get_all_update_ids()))
         result = json.loads(text)["result"]
 
         for update in result:
@@ -57,22 +37,31 @@ class Bot:
 
             try:
                 file_id = update["message"]["photo"][-1]["file_id"]
-                file_name = self.getPhoto(file_id)
+                file_name = self.get_photo(file_id)
                 caption = update["message"]["caption"]
             except:
                 pass
 
             if file_name != "":
-                data = (update_id, msg_id, file_name, caption, sender_name, sender_id)
-                print(data)
-                self.insertData("INSERT INTO polaroids VALUES (?, ?, ?, ?, ?, ?)", data=data)
+                DatabaseFunctions.insert_new_post(update_id, msg_id, file_name, caption, sender_name, sender_id)
 
-        #threading.Timer(5, self.getUpdates).start()
 
-    def getPhoto(self, file_id):
+    def get_all_posts(self):
+        data = []
+        for row in DatabaseFunctions.get_all_posts():
+            data.append({
+                "url": "/static/images/" + row[0],
+                "subtitle": row[1],
+                "sender": row[2]
+            })
+        return data
+
+    def get_photo(self, file_id):
         file_path = json.loads(requests.get(f"https://api.telegram.org/bot{TOKEN}/getFile?file_id={file_id}").text)["result"]["file_path"]
         file = requests.get(f"https://api.telegram.org/file/bot{TOKEN}/{file_path}").content
-        file_name = str(uuid.uuid4()) + ".jpg"
+        file_type = file_path.split(".")[-1]
+        print("Saving new file: " + str(uuid.uuid4()) + "." + file_type)
+        file_name = str(uuid.uuid4()) + "." + file_type
         try:
             os.mkdir("./static/images")
         except:

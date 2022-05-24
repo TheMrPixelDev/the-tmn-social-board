@@ -37,22 +37,25 @@ async function fetchNewPicturesAndRerender() {
         app.appendChild(borderBox);
     })
 
-    /**
-     * Overriding currentlyRendered array to track current render status
-     */
-    currentlyRendered = json;
-
+    
 
     /**
      * Scroll to the bottom after pictures have been rendered
      */
-    setTimeout(() => {
+    if(picsToRender.length != 0) {
         window.scroll({
             top: document.body.scrollHeight + 100,
             left: 0,
             behavior: 'smooth'
         })
-    }, 1000)
+
+        console.log("Scrolling down")
+    }
+
+    /**
+     * Overriding currentlyRendered array to track current render status
+     */
+    currentlyRendered = json;
 
 }
 
@@ -60,4 +63,4 @@ fetchNewPicturesAndRerender()
 
 setInterval(() => {
     fetchNewPicturesAndRerender()
-}, 5000)
+}, 10000)
