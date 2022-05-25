@@ -1,8 +1,13 @@
-# TMN SOCIAL BOARD
+# TMN Social Board (backend)
 
-This is an application which displays pictures sent to a Telegram-Bot.
-It's used at the TMN-Party of the Fachschaft Philo and FSinfo at the University of Passau.
+Backend API with Database to display photos sent to a Telegram-Bot.
 
-Features
-+ send pictures to Telegram-Bot
-+ display pictures on centralized screen
+### Features
++ send pictures to Telegram-Bot to deliver via API
+
+### Upcoming Features
+- get photos from Instagram posted under a certain hashtag
+- group support for Telegram-Bot
+
+### Feature Requests
+Please write an issue if you want to request any future features.
