@@ -1,7 +1,8 @@
 venv
-static/images/*
+static/ig_images
+static/images
 content.db
 __pycache__
 .idea
 .env
-
+ig_cookies.json

@@ -1,8 +1,9 @@
 from fastapi import FastAPI, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from Bot import Bot
-import DatabaseFunctions
+from TelegramBot import TelegramBot
+from InstagramBot import InstagramBot
+from Database import Database
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -16,11 +17,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-bot = Bot()
-bot.fetch_updates()
+database = Database()
+telegram = TelegramBot(database)
+instagram = InstagramBot(database)
 
-@app.get("/pics")
-async def pics():
-    bot.fetch_updates()
-    pics = bot.get_all_posts()
+@app.get("/telegram_pics")
+async def telegram_pics():
+    telegram.fetch_updates()
+    pics = telegram.get_all_items()
+    return pics
+
+@app.get("/instagram_pics")
+async def instagram_pics():
+    instagram.fetch_updates()
+    pics = instagram.get_all_items()
     return pics
