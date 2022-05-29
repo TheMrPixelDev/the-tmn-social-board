@@ -29,5 +29,12 @@ TG_TOKEN=your_telegram_bot_token
 IG_COOKIE_PATH=/path/to/your/json/file
 ```
 
+4. Create python virutal environment and install dependencies
+```bash
+python3 -m venv venv
+source ./venv/bin/activate
+pip3 install -r requirements.txt
+```
+
 ### Feature Requests
 Please write an issue if you want to request any future features.
