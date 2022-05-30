@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from TelegramBot import TelegramBot
 from InstagramBot import InstagramBot
 from Database import Database
+from BotScheduler import BotScheduler
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -20,15 +21,17 @@ app.add_middleware(
 database = Database()
 telegram = TelegramBot(database)
 instagram = InstagramBot(database)
+instagram_scheduler = BotScheduler(instagram, 200)
+telegram_scheduler = BotScheduler(telegram, 10)
 
 @app.get("/telegram_pics")
 async def telegram_pics():
-    telegram.fetch_updates()
+    #telegram.fetch_updates()
     pics = telegram.get_all_items()
     return pics
 
 @app.get("/instagram_pics")
 async def instagram_pics():
-    instagram.fetch_updates()
+    #instagram.fetch_updates()
     pics = instagram.get_all_items()
     return pics
