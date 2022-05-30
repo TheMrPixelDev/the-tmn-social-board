@@ -5,9 +5,9 @@ It will be extended by a realy testing framework in the future.
 
 from TelegramBot import TelegramBot
 from InstagramBot import InstagramBot
-from Database import Database
+import db
 
-database = Database()
+database = db.OrmAbstraction()
 telegram = TelegramBot(database)
 instagram = InstagramBot(database)
 
@@ -47,8 +47,20 @@ def test_telegram_get_all_items_method():
     items = telegram.get_all_items()
     print(f"Value: {items}")
 
+@base_test
+def test_database_get_ids_by_instagram():
+    items = set(map(lambda post: post[0], database.get_ids_by_platform("instagram")))
+    print(f"Value: {items}")
+
+@base_test
+def test_database_get_ids_by_telegram():
+    items = set(map(lambda post: post[0], database.get_ids_by_platform("telegram")))
+    print(f"Value: {items}")
+
 
 test_instagram_fetch_updates_method()
 test_instagram_get_all_items_method()
 test_telegram_fetch_updates_method()
 test_telegram_get_all_items_method()
+test_database_get_ids_by_instagram()
+test_database_get_ids_by_telegram()

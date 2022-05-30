@@ -1,7 +1,7 @@
 venv
 static/ig_images
 static/images
-content.db
+content2.db
 __pycache__
 .idea
 .env

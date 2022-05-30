@@ -4,6 +4,7 @@ from uuid import uuid4
 from Bot import Bot
 import os
 from dotenv import load_dotenv
+from db import Post
 
 
 class InstagramBot(Bot):
@@ -23,9 +24,11 @@ class InstagramBot(Bot):
 
         raw_response: str = requests.get("https://www.instagram.com/explore/tags/tussimeetsnerd/?__a=1&__d=dis", cookies=self.cookies).text
         json_response: dict = json.loads(raw_response)
-        extracted_posts = self.format_response(json_response)
+        extracted_posts = self._format_response(json_response)
 
-        already_saved_post_ids: set = self.database.get_all_instagram_ids()
+        already_saved_post_ids: set = set(map(lambda p: p[0], self.database.get_ids_by_platform("instagram")))
+
+        post_objects: [Post] = []
 
         for post in extracted_posts:
 
@@ -33,21 +36,24 @@ class InstagramBot(Bot):
 
             if post_id not in already_saved_post_ids:
                 print("Found post which has not been saved yet")
-                print(post)
                 file_name: str = str(uuid4()) + ".jpg"
                 file_path: str = "./static/ig_images/" + file_name
                 file_content: bytes = requests.get(post["url"]).content
                 final_url: str = "/static/ig_images/" + file_name
-                self.save_to_file(file_path=file_path, file_content=file_content)
-                self.database.insert_new_instagram(
-                    post_id=str(post["id"]),
-                    url=str(final_url),
-                    caption=str(post["caption"]),
-                    username=str(post["username"]),
-                    time=int(post["taken_at"])
+                self._save_to_file(file_path=file_path, file_content=file_content)
+                post_objects.append(Post(
+                    post_id=post_id,
+                    datetime=post["taken_at"],
+                    username=post["username"],
+                    caption=post["caption"],
+                    file=final_url,
+                    platform="instagram"
+                    )
                 )
 
-    def format_response(self, content: dict) -> list:
+        self.database.save_posts(post_objects)
+
+    def _format_response(self, content: dict) -> list:
 
         posts: list = []
 
@@ -70,7 +76,7 @@ class InstagramBot(Bot):
 
         return posts
 
-    def save_to_file(self, file_path: str, file_content: bytes) -> None:
+    def _save_to_file(self, file_path: str, file_content: bytes) -> None:
         try:
             os.mkdir("./static/ig_images")
         except:
@@ -82,12 +88,13 @@ class InstagramBot(Bot):
 
     # overriding abstract method from class Bot
     def get_all_items(self) -> list:
-        posts = self.database.get_all_instagrams()
-        formatted_posts = list(map(lambda post: {
+        posts = self.database.get_all_posts(Post.platform == "instagram")
+        posts = list(map(lambda post: dict(post), posts))
+        """formatted_posts = list(map(lambda post: {
             "id": post[0],
             "url": post[1],
             "caption": post[2],
             "username": post[3],
             "time": post[4]
-        }, posts))
-        return formatted_posts
+        }, posts))"""
+        return posts
