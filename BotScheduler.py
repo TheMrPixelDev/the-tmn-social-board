@@ -1,24 +1,29 @@
+import time
 from Bot import Bot
-import asyncio
-import datetime
+import threading
 
-class BotScheduler:
+
+# *
+# This was the easiest implementation to solve this problem I could think of.
+# If you know a better was to solve this for example using an event loop,
+# feel free to make a pull request.
+# Some inspiration: https://github.com/encode/uvicorn/issues/706
+# *#
+
+
+class BotScheduler(threading.Thread):
+
     def __init__(self, bot: Bot, delay: float):
         if not isinstance(bot, Bot):
             raise Exception(f"{bot} does not implement Bot.")
         else:
             self.bot = bot
-            self.loop = asyncio.get_event_loop()
             self.delay: float = delay
-            self._running = asyncio.Lock()
+        super().__init__(target=self._execute, args=(bot, delay))
 
-    def set_delay(self, delay: float) -> None:
-        self.delay: float = delay
-
-    def start(self) -> None:
-        self.loop.call_later(delay=self.delay, callback=self._execute)
-
-    def _execute(self):
-        self.bot.fetch_updates()
-        print(f"Executed function {self.bot.fetch_updates} at {datetime.datetime.now()} (delay: {self.delay}s).")
-        self.start()
+    @staticmethod
+    def _execute(bot: Bot, delay: float):
+        print(f"Starting thread to executed function {bot.fetch_updates} every {delay}s.")
+        while True:
+            bot.fetch_updates()
+            time.sleep(delay)

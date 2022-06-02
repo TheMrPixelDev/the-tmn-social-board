@@ -22,7 +22,8 @@ class InstagramBot(Bot):
     # overriding abstract method from class Bot
     def fetch_updates(self) -> None:
 
-        raw_response: str = requests.get("https://www.instagram.com/explore/tags/tussimeetsnerd/?__a=1&__d=dis", cookies=self.cookies).text
+        raw_response: str = requests.get("https://www.instagram.com/explore/tags/tussimeetsnerd/?__a=1&__d=dis",
+                                         cookies=self.cookies).text
         json_response: dict = json.loads(raw_response)
         extracted_posts = self._format_response(json_response)
 
@@ -35,7 +36,7 @@ class InstagramBot(Bot):
             post_id: str = str(post["id"])
 
             if post_id not in already_saved_post_ids:
-                print("Found post which has not been saved yet")
+                self._log("Found post which has not been saved yet")
                 file_name: str = str(uuid4()) + ".jpg"
                 file_path: str = "./static/ig_images/" + file_name
                 file_content: bytes = requests.get(post["url"]).content
@@ -48,7 +49,7 @@ class InstagramBot(Bot):
                     caption=post["caption"],
                     file=final_url,
                     platform="instagram"
-                    )
+                )
                 )
 
         self.database.save_posts(post_objects)
@@ -79,22 +80,19 @@ class InstagramBot(Bot):
     def _save_to_file(self, file_path: str, file_content: bytes) -> None:
         try:
             os.mkdir("./static/ig_images")
-        except:
-            pass
+        except FileExistsError:
+            self._log("Instagram pictures folder already exists.")
 
         with open(file_path, "wb") as file:
             file.write(file_content)
             file.close()
 
+    @staticmethod
+    def _log(message) -> None:
+        print(f"[IG-Bot] {message}")
+
     # overriding abstract method from class Bot
     def get_all_items(self) -> list:
         posts = self.database.get_all_posts(Post.platform == "instagram")
         posts = list(map(lambda post: dict(post), posts))
-        """formatted_posts = list(map(lambda post: {
-            "id": post[0],
-            "url": post[1],
-            "caption": post[2],
-            "username": post[3],
-            "time": post[4]
-        }, posts))"""
         return posts

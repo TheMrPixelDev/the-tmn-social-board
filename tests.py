@@ -1,8 +1,8 @@
 """
 This file contains some function to test the basic functionality of the whole project.
-It will be extended by a realy testing framework in the future.
+It will be extended by a real testing framework in the future.
 """
-
+# from BotScheduler import BotScheduler
 from TelegramBot import TelegramBot
 from InstagramBot import InstagramBot
 import db
@@ -10,6 +10,10 @@ import db
 database = db.OrmAbstraction()
 telegram = TelegramBot(database)
 instagram = InstagramBot(database)
+
+
+# tg_scheduler = BotScheduler(telegram, 3)
+# tg_scheduler.start()
 
 
 def base_test(func):
@@ -42,15 +46,18 @@ def test_instagram_get_all_items_method():
 def test_telegram_fetch_updates_method():
     telegram.fetch_updates()
 
+
 @base_test
 def test_telegram_get_all_items_method():
     items = telegram.get_all_items()
     print(f"Value: {items}")
 
+
 @base_test
 def test_database_get_ids_by_instagram():
     items = set(map(lambda post: post[0], database.get_ids_by_platform("instagram")))
     print(f"Value: {items}")
+
 
 @base_test
 def test_database_get_ids_by_telegram():
@@ -58,9 +65,11 @@ def test_database_get_ids_by_telegram():
     print(f"Value: {items}")
 
 
-test_instagram_fetch_updates_method()
-test_instagram_get_all_items_method()
-test_telegram_fetch_updates_method()
-test_telegram_get_all_items_method()
-test_database_get_ids_by_instagram()
-test_database_get_ids_by_telegram()
+# test_instagram_fetch_updates_method()
+# test_instagram_get_all_items_method()
+# test_telegram_fetch_updates_method()
+# test_telegram_get_all_items_method()
+# test_database_get_ids_by_instagram()
+# test_database_get_ids_by_telegram()
+
+telegram.fetch_updates()

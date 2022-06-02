@@ -3,13 +3,17 @@ from sqlalchemy import Column, String, Text
 from sqlalchemy.orm.session import sessionmaker
 import sqlalchemy
 
-
 engine = sqlalchemy.create_engine('sqlite:///content2.db')
 base = declarative_base()
 
 
-class Post(base):
+# *
+# Post class which generally represents every
+# post submitted on any supported platform
+# *#
 
+
+class Post(base):
     __tablename__ = 'posts'
 
     post_id = Column(String, primary_key=True)
@@ -57,9 +61,8 @@ class OrmAbstraction:
 
     def get_all_posts(self, condition=True) -> list:
         with self._create_session() as s:
-            posts = s.query(Post).filter(condition).order_by(Post.datetime.asc()).all()
+            posts = s.query(Post).filter(condition).order_by(Post.datetime.desc()).all()
             return posts
-
 
     def get_all_posts_of_platform(self, platform: str) -> list:
         with self._create_session() as s:

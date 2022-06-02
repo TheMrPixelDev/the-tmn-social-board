@@ -1,6 +1,6 @@
 venv
 static/ig_images
-static/images
+static/tg_images
 content2.db
 __pycache__
 .idea
